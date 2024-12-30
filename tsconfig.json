@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ESNext", // 최신 ECMAScript 기능을 사용할 수 있게 설정
+    "module": "ESNext", // ES 모듈 시스템 사용
+    "jsx": "react-jsx", // React JSX 사용
+    "moduleResolution": "node", // Node.js 스타일의 모듈 해석
+    "esModuleInterop": true, // CommonJS 모듈과의 호환성 설정
+    "skipLibCheck": true, // 라이브러리 타입 검사를 건너뜀
+    "forceConsistentCasingInFileNames": true, // 파일 대소문자 일관성 강제
+
+    // NEW
+    "allowJs": true, // JS, JSX 파일 허용
+    "outDir": "./build", // 빌드 파일을 저장할 디렉토리 (빌드할 때 사용)
+    "rootDir": "./src", // 소스 파일이 위치한 루트 디렉토리
+    "noEmit": true // 빌드 파일을 실제로 출력하지 않음 (임시로 빌드 테스트만 할 때 유용)
+  },
+  // "include": ["src"], // src 디렉토리의 파일들을 포함
+  // "exclude": ["node_modules"] // node_modules 폴더 제외
+
+  // NEW
+  "include": ["src/**/*", "src/Components/post/.jsx"], // 포함할 파일 경로
+  "exclude": ["node_modules", "build"] // 빌드된 파일이나 node_modules는 제외
+}

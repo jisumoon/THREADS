@@ -1,0 +1,121 @@
+[
+ {
+   "threadId": "qkrwpgks1",
+   "threadUserImg": "https://cdn.imweb.me/thumbnail/20230329/254bc982ed3ef.jpg",
+   "threadTime": "방금 전",
+   "threadContents": {
+     "text": "오늘은 즐거운 빨간날 임시공휴일이라 너무즐겁다 정말로",
+     "images": []
+   },
+   "threadShareLink": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQH8nUODdb_BLSYKQaWnJIZXuxxGgmlNW17Vw&s",
+   "threadCommentsList": [
+     {
+       "commentId": "c1",
+       "commentUserImg": "https://example.com/comment1/profile.jpg",
+       "commentUserName": "userCommenter1",
+       "commentTime": "방금 전",
+       "commentText": "정말 멋진 게시글이네요!"
+     }
+   ],
+   "threadBookMark": true,
+   "threadHeart": 10
+ },
+ {
+   "threadId": "jehanpark1344",
+   "threadUserImg": "https://belier.co.kr/web/upload/share-image-1-0f829ff479d22abf27c9c3aeed8ae1de.png",
+   "threadTime": "1분 전",
+   "threadContents": {
+     "text": "소란함에 휩쓸리지 않고 자연스럽게 도시 생활에 녹아들 수 있도록, 벨리에는 클래식 아이템을 크루들을 위한 시티 트립 웨어로 재해석해 제안합니다. · GENUINE LEATHER.",
+     "images": [
+       "https://minkc2516.cafe24.com/web/upload/NNEditor/20180911/0_shop1_225038.jpg"
+     ]
+   },
+   "threadShareLink": "https://example.com/post/2",
+   "threadCommentsList": [
+     {
+       "commentId": "iloveDK",
+       "commentUserImg": "https://example.com/comment2/profile.jpg",
+       "commentUserName": "userCommenter2",
+       "commentTime": "1분 전",
+       "commentText": "내 최애 브랜드"
+     },
+     {
+       "commentId": "imbest123",
+       "commentUserImg": "https://example.com/comment3/profile.jpg",
+       "commentUserName": "userCommenter3",
+       "commentTime": "3분 전",
+       "commentText": "올해 가디건 너무 멋지다"
+     }
+   ],
+   "threadBookMark": false,
+   "threadHeart": 7
+ },
+ {
+   "threadId": "ehrudajtwoddl",
+   "threadUserImg": "https://example.com/user3/profile.jpg",
+   "threadTime": "2분 전",
+   "threadContents": {
+     "text": "세 번째 게시글입니다.",
+     "images": []
+   },
+   "threadShareLink": "https://example.com/post/3",
+   "threadCommentsList": [
+     {
+       "commentId": "IMDook",
+       "commentUserImg": "https://example.com/comment4/profile.jpg",
+       "commentUserName": "userCommenter4",
+       "commentTime": "방금 전",
+       "commentText": "정말 흥미로운 게시글이네요!"
+     }
+   ],
+   "threadBookMark": true,
+   "threadHeart": 15
+ },
+ {
+   "threadId": "js500_123",
+   "threadUserImg": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNc60ShaC7HHQ-4pc9ZQdqnvSkpc7WMPTVDg&s",
+   "threadTime": "3분 전",
+   "threadContents": {
+     "text": "아스날 vs 첼시, 에밀레이트 스타이움에서 홈 아스날의 2대0 완승 MOM은 NO.8 외데고르",
+     "images": [
+       "https://cdn.mhnse.com/news/photo/202203/97242_79364_4347.jpg",
+       "https://mydaily.co.kr/photos/2023/09/21/2023092105445782026_l.jpg"
+     ]
+   },
+   "threadShareLink": "https://example.com/post/4",
+   "threadCommentsList": [
+     {
+       "commentId": "jehanHI",
+       "commentUserImg": "https://example.com/comment5/profile.jpg",
+       "commentUserName": "userCommenter5",
+       "commentTime": "2분 전",
+       "commentText": "자연이 정말 아름다워요!"
+     }
+   ],
+   "threadBookMark": false,
+   "threadHeart": 12
+ },
+ {
+   "threadId": "ImYh0o0",
+   "threadUserImg": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoZQ9VaiOKjei9GU-3MeL8D3FY1s8uix6N7mq-md-BU3dqjutwkjQ2Qz3u3pe4OTSloYE&usqp=CAU",
+   "threadTime": "4분 전",
+   "threadContents": {
+     "text": "레알마드리드 챔피언스리그 우승 선수들 너무 잘했고 고생했다!",
+     "images": [
+       "https://www.news1.kr/_next/image?url=https%3A%2F%2Fi3n.news1.kr%2Fsystem%2Fphotos%2F2022%2F5%2F29%2F5398365%2Fhigh.jpg&w=1920&q=75"
+     ]
+   },
+   "threadShareLink": "https://example.com/post/5",
+   "threadCommentsList": [
+     {
+       "commentId": "jh_so_cute",
+       "commentUserImg": "https://example.com/comment6/profile.jpg",
+       "commentUserName": "userCommenter6",
+       "commentTime": "방금 전",
+       "commentText": "나도 경기봤는데 너무 잘하더라 우승가자"
+     }
+   ],
+   "threadBookMark": true,
+   "threadHeart": 5
+ }
+]
