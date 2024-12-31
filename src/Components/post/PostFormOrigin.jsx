@@ -7,17 +7,12 @@ import {
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
-import { auth, db, storage } from "../firebase";
+import { auth, db, storage } from "../../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
-import {
-  CameraIcon,
-  PictureIcon,
-  MicIcon,
-  HashtagIcon,
-} from "../Components/Common/Icon";
-import { useAuth } from "../Contexts/AuthContext";
-import Loading from "./Loading";
+import { CameraIcon, PictureIcon, MicIcon, HashtagIcon } from "../Common/Icon";
+import { useAuth } from "../../Contexts/AuthContext";
+import Loading from "../logo/Loading";
 
 // Styled Components
 const Wrapper = styled.div`
@@ -272,11 +267,14 @@ const PostForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const user = auth.currentUser;
+
+    // 유효성 검사
     if (!user || isLoading || post === "" || post.length > 180) return;
 
     try {
       setIsLoading(true);
 
+      // Firestore에 초기 데이터 저장
       const docRef = await addDoc(collection(db, "contents"), {
         post,
         createdAt: serverTimestamp(),
@@ -290,22 +288,18 @@ const PostForm = () => {
       });
 
       const photoUrls = [];
-      const videoUrls = [];
 
-      // 파일 업로드
+      // 이미지 파일 업로드
       await Promise.all(
         files.map(async (file) => {
-          const locationRef = ref(
-            storage,
-            `contents/${user.uid}/${docRef.id}/${file.name}`
-          );
-          const result = await uploadBytes(locationRef, file);
-          const url = await getDownloadURL(result.ref);
-
           if (file.type.startsWith("image/")) {
-            photoUrls.push(url);
-          } else if (file.type.startsWith("video/")) {
-            videoUrls.push(url);
+            const locationRef = ref(
+              storage,
+              `contents/${user.uid}/${docRef.id}/${file.name}`
+            );
+            const result = await uploadBytes(locationRef, file);
+            const url = await getDownloadURL(result.ref);
+            photoUrls.push(url); // 업로드된 이미지 URL 저장
           }
         })
       );
@@ -318,12 +312,12 @@ const PostForm = () => {
         );
         await uploadBytes(audioRef, audioBlob);
         const audioURL = await getDownloadURL(audioRef);
-        await updateDoc(docRef, { audioURL });
+        await updateDoc(docRef, { audioURL }); // Firestore에 녹음 파일 URL 추가
       }
 
+      // Firestore 문서 업데이트 (이미지 URL 추가)
       await updateDoc(docRef, {
         photos: photoUrls,
-        videos: videoUrls,
       });
 
       // 상태 초기화
@@ -331,6 +325,7 @@ const PostForm = () => {
       setFiles([]);
       setAudioBlob(null);
     } catch (error) {
+      console.error("Error while submitting post:", error);
     } finally {
       setIsLoading(false);
     }

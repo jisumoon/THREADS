@@ -4,7 +4,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid"; // 파일명 고유성을 위한 UUID
 import styled from "styled-components";
 // import { MicIcon, FaStop, FaCheck } from "../Components/Common/Icon"; // 아이콘 임포트
-import { storage } from "../firebase"; // Firebase storage import
+import { storage } from "../../firebase"; // Firebase storage import
 
 const RecorderWrapper = styled.div`
   display: flex;

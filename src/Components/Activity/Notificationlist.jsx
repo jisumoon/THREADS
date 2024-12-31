@@ -58,14 +58,13 @@ const NotificationList = ({ onUpdate }) => {
             docData.message ||
             messages[Math.floor(Math.random() * messages.length)];
 
-          // getTypeLabel
           const type = getTypeLabel(message);
 
           return {
             id: docSnapshot.id,
 
             username: docData.userEmail || "siro@ezen.com",
-            // createdAt,
+
             isRead: false,
             message,
             type,

@@ -123,43 +123,86 @@ const OtherBtnModal = ({ open, close, profile, onProfileChange }) => {
 
   const followButton = async () => {
     try {
-      const profileQuery = query(
-        collection(db, "profile"),
-        where("userEmail", "==", emailAdress)
+      if (!auth.currentUser) return;
+
+      const currentUserRef = doc(db, "users", auth.currentUser.uid); // 현재 로그인한 사용자
+      const profileUserRef = query(
+        collection(db, "users"),
+        where("email", "==", emailAdress) // 대상 사용자의 문서 가져오기
       );
-      const querySnapshot = await getDocs(profileQuery);
+      const profileUserSnapshot = await getDocs(profileUserRef);
 
-      let newFollowState = follow === true ? false : true;
-      setFollow(newFollowState);
+      if (profileUserSnapshot.empty) {
+        console.error("해당 유저를 찾을 수 없습니다.");
+        return;
+      }
 
-      if (querySnapshot.empty) {
-        // 유저 데이터가 없을 때
-        const newDocRef = await addDoc(collection(db, "profile"), {
-          username: emailAdress,
-          userId: "",
-          userEmail: emailAdress,
-          bio: "",
-          isLinkPublic: true,
-          isProfilePublic: true,
-          img: "",
-          isFollowing: true,
-          followNum: followNum,
+      const targetUserDoc = profileUserSnapshot.docs[0]; // 팔로우 대상 문서
+      const targetUserId = targetUserDoc.id; // 대상 유저의 UID
+      const targetUserRef = doc(db, "users", targetUserId); // Firestore 문서 참조
+
+      // 현재 팔로우 상태 확인
+      const currentUserSnapshot = await getDoc(currentUserRef);
+      const currentUserData = currentUserSnapshot.data();
+      const isCurrentlyFollowing =
+        currentUserData.following &&
+        currentUserData.following.includes(targetUserId);
+
+      // 새로운 팔로우 상태 설정
+      const newFollowState = !isCurrentlyFollowing;
+
+      if (newFollowState) {
+        // 팔로우 추가
+        await updateDoc(currentUserRef, {
+          following: arrayUnion(targetUserId), // following 배열에 대상 UID 추가
         });
-        await updateDoc(newDocRef, { postId: newDocRef.id });
+        await updateDoc(targetUserRef, {
+          followers: arrayUnion(auth.currentUser.uid), // followers 배열에 내 UID 추가
+        });
       } else {
-        //데이터가 있을 떄 업로드
-        const docRef = querySnapshot.docs[0].ref;
-        await updateDoc(docRef, {
-          isFollowing: newFollowState,
+        // 언팔로우 제거
+        await updateDoc(currentUserRef, {
+          following: arrayRemove(targetUserId), // following 배열에서 대상 UID 제거
+        });
+        await updateDoc(targetUserRef, {
+          followers: arrayRemove(auth.currentUser.uid), // followers 배열에서 내 UID 제거
         });
       }
-      //여기에 있는 profile state값 변경
-      const updatedProfile = {
-        ...profile,
-        isFollowing: newFollowState,
-      };
-      onProfileChange(updatedProfile); // 상위 컴포넌트로 변경된 프로필 전달
-    } catch (e) {}
+
+      // followers 배열의 길이를 기반으로 followerNum 업데이트
+      const targetUserSnapshot = await getDoc(targetUserRef);
+      if (targetUserSnapshot.exists()) {
+        const targetUserData = targetUserSnapshot.data();
+        const updatedFollowerNum = targetUserData.followers
+          ? targetUserData.followers.length
+          : 0;
+
+        // profile 컬렉션 업데이트
+        const profileQuery = query(
+          collection(db, "profile"),
+          where("userEmail", "==", emailAdress)
+        );
+        const querySnapshot = await getDocs(profileQuery);
+
+        if (!querySnapshot.empty) {
+          const profileDoc = querySnapshot.docs[0];
+          const docRef = profileDoc.ref;
+
+          await updateDoc(docRef, {
+            followNum: updatedFollowerNum,
+          });
+
+          // 상태 변경
+          const updatedProfile = {
+            ...profile,
+            followNum: updatedFollowerNum, // 업데이트된 팔로워 수
+          };
+          onProfileChange(updatedProfile);
+        }
+      }
+    } catch (e) {
+      console.error("팔로우 상태 변경 중 오류 발생:", e);
+    }
   };
 
   return (

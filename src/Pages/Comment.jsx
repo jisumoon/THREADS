@@ -295,7 +295,7 @@ const Comment = ({ id }) => {
   const [files, setFiles] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentUser } = useAuth(); // 현재 사용자 상태를 가져옴
+  const { currentUser } = useAuth();
   const [profileImg, setProfileImg] = useState("");
 
   const {
@@ -328,7 +328,7 @@ const Comment = ({ id }) => {
     const getUserProfileImage = async () => {
       try {
         const imgUrl = await fetchUserProfileImage(userId); // 프로필 이미지 가져오기
-        setProfileImg(imgUrl || ""); // 이미지가 없으면 빈 값
+        setProfileImg(imgUrl || "");
       } catch (error) {}
     };
 
@@ -338,10 +338,10 @@ const Comment = ({ id }) => {
     }
   }, [userId]);
 
-  // Firestore에서 댓글 데이터를 가져오는 useEffect
+  // Firestore에서 댓글 데이터
   useEffect(() => {
     const fetchComments = async () => {
-      if (!postId) return; // postId가 없을 경우 함수 종료
+      if (!postId) return;
 
       try {
         const commentsCollectionRef = collection(

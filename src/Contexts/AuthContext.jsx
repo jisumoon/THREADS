@@ -47,7 +47,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, getAuth } from "firebase/auth";
 import { auth } from "../firebase";
-import Intro from "../Components/Intro";
+import Intro from "../Components/logo/Intro";
 
 // AuthContext 생성
 const AuthContext = createContext();

@@ -8,7 +8,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { db } from "../../firebase";
-import Post from "../Post";
+import Post from "./Post";
 
 const TimeLine = ({ searchTerm, contentType, onDataEmpty, postNum }) => {
   const [posts, setPosts] = useState([]);

@@ -54,9 +54,7 @@ const LoginItem = () => {
               required
               value={id}
             />
-            <StyledLabel htmlFor="id">
-              사용자 이름, 전화번호 또는 이메일 주소
-            </StyledLabel>
+            <StyledLabel htmlFor="id">이메일 주소</StyledLabel>
           </InputWrapper>
           <InputWrapper>
             <StyledInput

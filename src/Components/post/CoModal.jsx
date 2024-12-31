@@ -18,7 +18,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useAuth } from "../../Contexts/AuthContext";
 import { getDocs, collection } from "firebase/firestore";
-import Loading from "../Loading";
+import Loading from "../logo/Loading";
 import fetchUserProfileImage from "../../Utils/fetchProfile";
 import { useLocation } from "react-router-dom";
 const AllWrapp = styled.div`
@@ -57,6 +57,7 @@ const PostComentWrapper = styled.div`
   margin-top: 10px;
   border-radius: 40px;
   background: ${(props) => props.theme.borderWrapper};
+
   @media (max-width: 768px) {
     width: 90%;
     height: auto;
@@ -627,10 +628,10 @@ const CoModal = ({
   };
 
   return (
-    <AllWrapp onClick={commentCancle}>
-      <ModalOverlay>
+    <AllWrapp>
+      <ModalOverlay onClick={commentCancle}>
         <Title>댓글</Title>
-        <PostComentWrapper>
+        <PostComentWrapper onClick={(e) => e.stopPropagation()}>
           <CenBtn onClick={commentCancle}>취소</CenBtn>
           <PostAll>
             <PostArea>

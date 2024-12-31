@@ -7,7 +7,7 @@ import {
 } from "firebase/firestore";
 import { useState, useEffect, useRef } from "react";
 import { db } from "../../firebase";
-import Post2 from "../Post2";
+import Post2 from "../post/Post2";
 
 const TimeLine2 = ({ searchTerm, contentType, onDataEmpty, postNum }) => {
   const [posts, setPosts] = useState([]);

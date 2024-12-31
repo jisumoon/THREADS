@@ -417,7 +417,7 @@ import {
   RightArrowIcon,
 } from "../Common/Icon";
 import styled from "styled-components";
-import Intro from "../Intro";
+import Intro from "../logo/Intro";
 import {
   Wrapper,
   BgImg,

@@ -121,29 +121,33 @@ const FollowerButton = styled.button`
   }
 `;
 const FollowerItem = ({ follower, toggleFollow, onProfileClick }) => {
-  const { ProfileImg, userEmail, bio, followNum, isFollowing } = follower;
+  const { ProfileImg, userEmail, bio, followNum = 0, isFollowing } = follower;
 
   return (
     <FollowerContain onClick={onProfileClick}>
       <Wrapper>
         <UserWrapper>
           {ProfileImg ? (
-            <img src={ProfileImg} alt="User profile" />
+            <img
+              src={ProfileImg}
+              alt={`${userEmail || "사용자"}의 프로필 이미지`}
+            />
           ) : (
             <UserIcon2 width={50} height={50} />
           )}
         </UserWrapper>
         <UserContex>
-          <UserName>{userEmail || "zang@ezen.com"}</UserName>
-          <UserInfo>{bio}</UserInfo>
+          <UserName>{userEmail || "알 수 없는 사용자"}</UserName>
+          <UserInfo>{bio || "소개글이 없습니다."}</UserInfo>
           <UserFollowerNum>{`팔로워 ${followNum}명`}</UserFollowerNum>
         </UserContex>
       </Wrapper>
+
       <FollowerButton
         isFollowing={isFollowing}
         onClick={(e) => {
-          e.stopPropagation(); // 상위 이벤트 전달 x
-          toggleFollow();
+          e.stopPropagation(); // 상위 클릭 이벤트 전파 방지
+          toggleFollow(); // 팔로우 상태 변경 함수 호출
         }}
       >
         {isFollowing ? "팔로잉" : "팔로우"}
@@ -151,4 +155,5 @@ const FollowerItem = ({ follower, toggleFollow, onProfileClick }) => {
     </FollowerContain>
   );
 };
+
 export default FollowerItem;

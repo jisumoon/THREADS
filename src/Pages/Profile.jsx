@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { auth, db } from "../firebase";
 import {
+  doc,
   collection,
   onSnapshot,
   limit,
@@ -8,10 +9,11 @@ import {
   query,
   where,
   getDocs,
+  getDoc,
 } from "firebase/firestore";
 import styled from "styled-components";
 import Button from "../Components/Common/Button";
-import Post2 from "../Components/Post2";
+import Post2 from "../Components/post/Post2";
 import {
   PlusIcon,
   InstaIcon,
@@ -320,7 +322,6 @@ const Profile = () => {
     isProfilePublic: true,
     img: `${avatar ?? ""}`,
     isFollowing: true,
-    followNum: followNum,
   });
 
   const [savedData, setSavedData] = useState([]); // 모든 데이터를 저장
@@ -392,34 +393,50 @@ const Profile = () => {
   //이메일로 비교해서 db에 저장된 profile 데이터 비교 후 가져와 setProfile에 넣기기
   const CheckProfile = async () => {
     try {
+      if (!auth.currentUser || !emailAdress) return;
+
+      // Firestore에서 프로필 데이터 가져오기
       const profileQuery = query(
         collection(db, "profile"),
         where("userEmail", "==", emailAdress)
       );
 
-      const unsubscribe = onSnapshot(profileQuery, (querySnapshot) => {
-        //db에 firebase에 사람이 있다면 ?
+      const unsubscribe = onSnapshot(profileQuery, async (querySnapshot) => {
         if (!querySnapshot.empty) {
-          const profileDoc = querySnapshot.docs[0].data(); //이메일이 프로필db에 있는 사람의 데이터.
-          const imgUrl = profileDoc.img;
-          setAvarta(imgUrl);
-          //유저 정보가 있다면
-          if (!profileDoc.empty) {
-            setProfile((prev) => ({
-              ...prev,
-              postId: profileDoc.postId,
-              username: profileDoc.username,
-              userEmail: profileDoc.userEmail,
-              bio: profileDoc.bio,
-              isLinkPublic: profileDoc.isLinkPublic,
-              isProfilePublic: profileDoc.isProfilePublic,
-              img: imgUrl,
-              isFollowing: profileDoc.isFollowing,
-              followNum: profileDoc.followNum,
-            }));
+          const profileDoc = querySnapshot.docs[0].data();
+          const imgUrl = profileDoc.img || null;
+          const userId = profileDoc.userId || null;
+
+          let followersCount = 0;
+
+          if (userId) {
+            // 해당 사용자의 followers 배열 길이 가져오기
+            const profileUserRef = doc(db, "users", userId);
+            const profileUserSnapshot = await getDoc(profileUserRef);
+
+            if (profileUserSnapshot.exists()) {
+              const profileUserData = profileUserSnapshot.data();
+              followersCount = profileUserData.followers
+                ? profileUserData.followers.length // 배열의 길이를 구합니다.
+                : 0;
+            }
           }
+
+          // 상태 업데이트
+          setProfile((prev) => ({
+            ...prev,
+            postId: profileDoc.postId || "",
+            username: profileDoc.username || emailAdress,
+            userEmail: profileDoc.userEmail || emailAdress,
+            bio: profileDoc.bio || "",
+            isLinkPublic: profileDoc.isLinkPublic ?? true,
+            isProfilePublic: profileDoc.isProfilePublic ?? true,
+            img: imgUrl,
+            isFollowing: prev.isFollowing, // 기존 상태 유지
+            followNum: followersCount, // followers 배열 길이로 업데이트
+          }));
         } else {
-          // 사람이 없다면?
+          // 문서가 없는 경우 기본값으로 상태 설정
           setProfile((prev) => ({
             ...prev,
             postId: "",
@@ -429,13 +446,16 @@ const Profile = () => {
             isLinkPublic: true,
             isProfilePublic: true,
             img: null,
-            isFollowing: true,
-            followNum: Math.floor(Math.random() * 10),
+            isFollowing: false,
+            followNum: 0, // 기본값 0
           }));
         }
       });
-      return () => unsubscribe();
-    } catch (error) {}
+
+      return () => unsubscribe(); // 리스너 정리
+    } catch (error) {
+      console.error("프로필 데이터를 가져오는 중 오류 발생:", error);
+    }
   };
 
   useEffect(() => {
@@ -471,7 +491,7 @@ const Profile = () => {
         }));
       });
 
-      // 모든 댓글을 가져오고 평탄화하여 단일 배열로 만듭니다.
+      // 모든 댓글 가져오기
       const commentsLists = await Promise.all(commentsPromises);
       const flattenedComments = commentsLists.flat();
 
@@ -601,7 +621,9 @@ const Profile = () => {
               <BottomWrap>
                 <Desk>{profile.bio ?? "프로필을 꾸며보세요!"}</Desk>
                 <FollowLink>
-                  <Follow onClick={onfollow}>팔로워 {profile.followNum}</Follow>
+                  <Follow onClick={onfollow}>
+                    팔로워 {profile.followNum || 0}
+                  </Follow>
                   {profile.isLinkPublic ? (
                     <Links>
                       <PulsLinkIcon>

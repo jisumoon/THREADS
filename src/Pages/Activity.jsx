@@ -211,7 +211,7 @@ const Activity = () => {
         (item) => contentType === "all" || item.type === contentType
       );
 
-      setFilteredData(updatedFilteredData); // 업데이트 필터데이터
+      setFilteredData(updatedFilteredData);
 
       return updatedData;
     });
@@ -238,23 +238,21 @@ const Activity = () => {
     }
   };
 
-  // 필터 버튼 클릭 처리
+  // 필터 버튼
   const handleButtonClick = (type) => {
     setContentType(type);
   };
 
-  //필터링된 데이터 바로 업데이트
   useEffect(() => {
     filterList(contentType); // savadata에서 filter된 데이터(내가 선택한 데이터)
   }, [contentType]);
 
-  // 미디어 사이즈 변화시 버튼 종류 변경
+  // 미디어 사이즈 변화
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
 
-    // resize 이벤트를 감지하여 상태 업데이트
     window.addEventListener("resize", handleResize);
 
     return () => {

@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import Logo from "../LoadingLogo/Logo";
 import LogoTextMark from "../LoadingLogo/LogoTextMark";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../../firebase";
+import { auth, db } from "../../firebase";
 import { useMediaQuery } from "react-responsive";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { useAuth } from "../../Contexts/AuthContext";
+import { doc, setDoc } from "firebase/firestore";
 
 import {
   Wrapper,
@@ -62,6 +63,25 @@ const CreateAccountItemDk = () => {
     return true;
   };
 
+  const createUserInFirestore = async (user) => {
+    try {
+      if (!user || !user.uid) {
+        throw new Error("User 객체가 유효하지 않습니다. UID가 없습니다.");
+      }
+
+      // Firestore에 사용자 정보 추가
+      const userRef = doc(db, "users", user.uid); // userId 대신 uid 사용
+      await setDoc(userRef, {
+        userId: user.uid,
+        username: user.displayName || "Anonymous",
+        email: user.email || "unknown", // 이메일이 없을 경우 대비
+        followers: [], // 초기 팔로워 배열
+        following: [], // 초기 팔로잉 배열
+        createdAt: new Date(), // 가입 시간
+      });
+    } catch (error) {}
+  };
+
   // 폼 제출 핸들러
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -74,19 +94,16 @@ const CreateAccountItemDk = () => {
         id,
         password
       );
-      await updateProfile(credentials.user, {
-        displayName: id,
-      });
+      const userId = credentials.user.uid;
+
+      await updateProfile(credentials.user, { displayName: id });
+
+      // Firestore에 사용자 데이터 저장
+      await createUserInFirestore(credentials.user);
+
       navigate("/");
     } catch (e) {
-      if (e instanceof FirebaseError) {
-        // Firebase 에러 코드에 따른 메시지 처리
-        if (e.code === "auth/email-already-in-use") {
-          setError("이미 존재하는 아이디입니다.");
-        } else {
-          setError(e.message); // 다른 에러의 경우 기본 메시지 출력
-        }
-      }
+      console.error("회원가입 오류:", e);
     } finally {
       setIsLoading(false);
     }
@@ -114,9 +131,7 @@ const CreateAccountItemDk = () => {
               required
               value={id}
             />
-            <StyledLabel htmlFor="id">
-              사용자 이름, 전화번호 또는 이메일 주소
-            </StyledLabel>
+            <StyledLabel htmlFor="id">이메일 주소</StyledLabel>
           </InputWrapper>
           <InputWrapper>
             <StyledInput
@@ -145,7 +160,7 @@ const CreateAccountItemDk = () => {
           <InputWrapper>
             <StyledInput
               type="submit"
-              value={isLoading ? "ㅋ.." : "회원가입 하기"}
+              value={isLoading ? "회원가입 중" : "회원가입 하기"}
             />
           </InputWrapper>
         </Form>

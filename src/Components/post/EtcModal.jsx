@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { updateDoc, doc } from "firebase/firestore";
 import { db, storage } from "../../firebase";
-import { CameraIcon, PictureIcon } from "../Common/Icon";
+import { PictureIcon } from "../Common/Icon";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import Loading from "../Loading";
+import Loading from "../LoadingLogo/Loading";
 
 const AllWrapp = styled.div`
   /* position: relative;  */

@@ -104,6 +104,7 @@ const Posted = styled.div`
   margin-top: 8px;
   margin-bottom: 5px;
   padding-left: 30px;
+  line-height: 1.4;
 `;
 const ColumnWrapper = styled.div`
   display: flex;
@@ -181,6 +182,7 @@ const CommentsList = styled.div`
 `;
 
 const CommentWrapper = styled.div`
+  border-bottom: 1px solid ${(props) => props.theme.borderstroke};
   width: 100%;
   height: auto;
   background: ${(props) => props.theme.borderColor};
@@ -243,21 +245,20 @@ const DeletIcon = styled.img`
   width: 16px;
 `;
 const CometdescAll = styled.div`
-  margin: 20px 0 0 9%;
-  border-left: 2px solid ${(props) => props.theme.borderstroke};
   padding: 10px 0;
   padding-left: 10px;
   @media (max-width: 768px) {
-    margin: 10px 0 0 5%;
   }
   @media (max-width: 500px) {
-    margin: 10px 0 0 8%;
   }
 `;
 const CommentContent = styled.div`
+  width: 500px;
   font-size: 14px;
   color: ${(props) => props.theme.fontcolor};
-  margin-left: 30px;
+  font-weight: 600;
+  margin-left: 90px;
+  line-height: 1.4;
 `;
 const CommentImage = styled.img`
   width: 120px;
@@ -301,24 +302,24 @@ const PostComment = () => {
   const navigate = useNavigate();
 
   const {
-    postId = "", // 기본값 추가
+    postId = "",
     userId = "",
     id = "",
     postContent = "",
     photos = [],
     videos = [],
     username = "",
-    createdAt = { seconds: Date.now() / 1000 }, // 기본값
-    likes: passedLikes = 0, // 기본값 추가
-    dms: passedDms = 0, // 기본값 추가
-    retweets: passedRetweets = 0, // 기본값 추가
+    createdAt = { seconds: Date.now() / 1000 },
+    likes: passedLikes = 0,
+    dms: passedDms = 0,
+    retweets: passedRetweets = 0,
   } = location.state || {};
 
   useEffect(() => {
     const getUserProfileImage = async () => {
       try {
         const imgUrl = await fetchUserProfileImage(userId); // 프로필 이미지 가져오기
-        setProfileImg(imgUrl || ""); // 이미지가 없으면 빈 값
+        setProfileImg(imgUrl || "");
       } catch (error) {}
     };
 
@@ -365,7 +366,7 @@ const PostComment = () => {
         const profileImagesMap = {};
         for (let comment of commentsList) {
           const profileImg = await fetchUserProfileImage(comment.userId);
-          profileImagesMap[comment.userId] = profileImg || ""; // 프로필 이미지가 없으면 빈 문자열
+          profileImagesMap[comment.userId] = profileImg || "";
         }
         setProfileImages(profileImagesMap);
       } catch (error) {}
@@ -419,7 +420,7 @@ const PostComment = () => {
       } catch (error) {}
     };
 
-    fetchPostOwner(); // 포스트 작성자의 ID 가져오기
+    fetchPostOwner();
   }, [id]); // id가 변경될 때마다 실행
 
   // Firestore에서 데이터 실시간 가져오기
@@ -438,7 +439,7 @@ const PostComment = () => {
     return () => unsubscribe();
   }, [postId]);
 
-  // 좋아요 핸들러
+  // 좋아요
   const handleToggleLike = async () => {
     const postRef = doc(db, "contents", postId);
     const postSnapshot = await getDoc(postRef);
@@ -463,7 +464,7 @@ const PostComment = () => {
     }
   };
 
-  // 댓글 핸들러
+  // 댓글
   const handleAddComment = async (newComment) => {
     const commentsRef = collection(db, "contents", postId, "comments");
     await addDoc(commentsRef, {

@@ -248,6 +248,58 @@ const ProfileEdit = React.memo(({ open, close, profile, onProfileChange }) => {
     }));
   }, [avatar]);
 
+  // 팔로우 정보 및 상태를 가져오는 함수
+  const fetchFollowData = async () => {
+    try {
+      if (!user?.uid || !profile?.userId) {
+        console.error("현재 사용자 또는 프로필 정보가 없습니다.");
+        return;
+      }
+
+      const currentUserRef = doc(db, "users", user.uid); // 현재 사용자 문서
+      const profileUserRef = doc(db, "users", profile.userId); // 프로필 대상 사용자 문서
+
+      // 현재 사용자 데이터 가져오기
+      const [currentUserSnapshot, profileUserSnapshot] = await Promise.all([
+        getDoc(currentUserRef),
+        getDoc(profileUserRef),
+      ]);
+
+      let isFollowing = false;
+      let followerCount = 0;
+
+      // 현재 사용자의 팔로잉 상태 확인
+      if (currentUserSnapshot.exists()) {
+        const currentUserData = currentUserSnapshot.data();
+        isFollowing = currentUserData.following.includes(profile.userId);
+      }
+
+      // 프로필 사용자의 팔로워 수 확인
+      if (profileUserSnapshot.exists()) {
+        const profileUserData = profileUserSnapshot.data();
+        followerCount = profileUserData.followers
+          ? profileUserData.followers.length
+          : 0;
+      }
+
+      // 상태 업데이트
+      setProfileData((prev) => ({
+        ...prev,
+        isFollowing,
+        followNum: followerCount,
+      }));
+    } catch (error) {
+      console.error("팔로우 정보를 가져오는 중 오류 발생:", error);
+    }
+  };
+
+  // useEffect에서 팔로우 데이터 가져오기
+  useEffect(() => {
+    if (profile.userId) {
+      fetchFollowData();
+    }
+  }, [profile.userId]);
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     const newValue =
@@ -337,8 +389,6 @@ const ProfileEdit = React.memo(({ open, close, profile, onProfileChange }) => {
           isLinkPublic: profileData.isLinkPublic,
           isProfilePublic: profileData.isProfilePublic,
           img: imgToSave,
-          isFollowing: profile.isFollowing,
-          followNum: profile.followNum,
         });
       }
       // auth 정보 수정

@@ -3,11 +3,10 @@
 import { createBrowserRouter } from "react-router-dom";
 import Layout from "../Layout/Layout";
 import Home from "../Pages/Home";
-import HomeDK from "../Pages/Home_dk";
 import Search from "../Pages/Search";
 import Login from "../Pages/Login";
 import LoginInsta from "../Pages/LoginInsta";
-import Follow from "../Pages/Follow";
+
 import Activity from "../Pages/Activity";
 import Profile from "../Pages/Profile";
 import PostForm from "../Components/post/PostForm";
@@ -37,10 +36,7 @@ export const router = createBrowserRouter([
         path: "Profile",
         element: <Profile />,
       },
-      {
-        path: "Follow",
-        element: <Follow />,
-      },
+
       {
         path: "Activity",
         element: <Activity />,

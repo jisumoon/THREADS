@@ -125,7 +125,6 @@ const Home = () => {
     }
 
     return () => {
-      // 컴포넌트 언마운트 시 스크롤 이벤트 리스너 제거
       if (element) {
         element.removeEventListener("scroll", handleScroll);
       }

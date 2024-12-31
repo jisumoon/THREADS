@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { auth, db, storage } from "../firebase";
+import { auth, db, storage } from "../../firebase";
 import {
   deleteDoc,
   doc,
@@ -18,19 +18,19 @@ import {
   EtcIcon,
   Coment,
   UserIcon2,
-} from "./Common/Icon";
+} from "../Common/Icon";
 
 import { createSearchParams, useNavigate } from "react-router-dom";
 // Styled Components
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
-import PostSetModal from "./Common/PostSetModal";
-import AudioMessage from "./AudioMessage";
-import EtcModal from "./post/EtcModal";
-import fetchUserProfileImage from "../Utils/fetchProfile";
-import PostCommentModal from "../Pages/PostComment";
-import CoModal from "./post/CoModal";
-import ImageModal from "./post/ImageModal";
+import PostSetModal from "../Common/PostSetModal";
+import AudioMessage from "../Audio/AudioMessage";
+import EtcModal from "./EtcModal";
+import fetchUserProfileImage from "../../Utils/fetchProfile";
+import PostCommentModal from "../../Pages/PostComment";
+import CoModal from "./CoModal";
+import ImageModal from "./ImageModal";
 
 const Wrapper = styled.div`
   position: relative;

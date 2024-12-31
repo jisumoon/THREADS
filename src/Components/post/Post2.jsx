@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { auth, db, storage } from "../firebase";
+import { auth, db, storage } from "../../firebase";
 import {
   deleteDoc,
   doc,
@@ -18,19 +18,19 @@ import {
   EtcIcon,
   Coment,
   UserIcon2,
-} from "./Common/Icon";
+} from "../Common/Icon";
 
 import { createSearchParams, useNavigate } from "react-router-dom";
 // Styled Components
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
-import PostSetModal from "./Common/PostSetModal";
-import AudioMessage from "./AudioMessage";
-import EtcModal from "./post/EtcModal";
-import fetchUserProfileImage from "../Utils/fetchProfile";
-import PostCommentModal from "../Pages/PostComment";
-import CoModal from "./post/CoModal";
-import ImageModal from "./post/ImageModal";
+import PostSetModal from "../Common/PostSetModal";
+import AudioMessage from "../Audio/AudioMessage";
+import EtcModal from "./EtcModal";
+import fetchUserProfileImage from "../../Utils/fetchProfile";
+import PostCommentModal from "../../Pages/PostComment";
+import CoModal from "./CoModal";
+import ImageModal from "./ImageModal";
 
 const Wrapper = styled.div`
   position: relative;
@@ -41,14 +41,10 @@ const Wrapper = styled.div`
   display: flex;
 
   flex-direction: column;
-  border-bottom: 1px solid rgba(204, 204, 204, 0.4);
   background: ${(props) => props.theme.borderColor};
+  border-bottom: 1px solid ${(props) => props.theme.comentBouttomLine};
   @media (max-width: 768px) {
-    width: 100%;
-    height: auto;
-    border-radius: 0px;
-    padding: 30px;
-    margin-bottom: 0px;
+    padding: 30px 10px;
   }
 `;
 const ColumnWrapper = styled.div`
@@ -94,7 +90,6 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
-  margin-bottom: 8px;
 `;
 const UserImage = styled.img`
   width: 40px;
@@ -129,17 +124,16 @@ const Etc = styled.div`
 const Payload = styled.p`
   font-size: 15px;
   font-weight: 600;
-  margin-left: 0px;
   margin-bottom: 5px;
   line-height: 1.4;
-  padding-right: 15px;
+  padding-left: 19px;
 `;
 
 const Icons = styled.div`
   display: flex;
   justify-content: start;
   align-items: center;
-  margin-left: 50px;
+  padding: 0 70px;
   margin-top: 10px;
   cursor: pointer;
   color: #bababa;
@@ -497,7 +491,7 @@ const Post = ({
               alt="User Profile"
             ></UserImage>
           ) : (
-            <UserIcon2 width={40} />
+            <UserIcon2 width={50} />
           )}
 
           <Username

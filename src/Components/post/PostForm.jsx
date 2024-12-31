@@ -8,9 +8,9 @@ import {
   collection,
 } from "firebase/firestore";
 import { db, storage } from "../../firebase";
-import { CameraIcon, PictureIcon, MicIcon, RecoderIcon } from "../Common/Icon";
+import { PictureIcon, MicIcon, RecoderIcon } from "../Common/Icon";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import Loading from "../Loading";
+import Loading from "../logo/Loading";
 import { ButtonGroup } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../Contexts/AuthContext";
@@ -199,47 +199,46 @@ const PostForm = ({ onCancel, onSubmitSuccess }) => {
     setFiles((prevFiles) => [...prevFiles, ...validFiles]);
   };
 
-  const startRecording = () => {
-    if (isRecording) return; // 이미 녹음 중이라면 중복 생성 방지
+  const removeFile = (index) => {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  };
 
+  // 녹음 시작
+  const startRecording = () => {
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       mediaRecorder.start();
       setIsRecording(true);
 
-      const chunks = [];
-      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-      mediaRecorder.onstop = () => {
-        const audio = new Blob(chunks, { type: "audio/mp3" });
-        setAudioBlob(audio);
-        setFiles((prevFiles) => [
-          ...prevFiles,
-          new File([audio], "recording.mp3", { type: "audio/mp3" }),
-        ]);
+      mediaRecorder.ondataavailable = (e) => {
+        const url = URL.createObjectURL(e.data);
+        setAudioBlob(e.data); // 녹음 완료 시 audioBlob에 데이터 저장
+        setAudioURL(url); // 미리보기용 URL 생성
       };
     });
   };
 
+  // 녹음 중지
   const stopRecording = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
+    mediaRecorderRef.current.stop();
+    setIsRecording(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!postContent.trim()) {
-      alert("내용을 입력하세요!"); // 입력값 확인
+      alert("내용을 입력하세요!");
       return;
     }
+
     if (isLoading) return;
 
     try {
       setIsLoading(true);
 
-      // Firebase에 초기 데이터 저장
+      // Firestore에 게시물 초기 데이터 저장
       const docRef = await addDoc(collection(db, "contents"), {
         post: postContent,
         createdAt: serverTimestamp(),
@@ -252,16 +251,38 @@ const PostForm = ({ onCancel, onSubmitSuccess }) => {
         dms: 0,
         retweets: 0,
       });
-      const uploadedFiles = await Promise.all(
+
+      const photoUrls = [];
+
+      // 이미지 파일 업로드
+      await Promise.all(
         files.map(async (file) => {
-          const fileRef = ref(storage, `posts/${docRef.id}/${file.name}`);
-          await uploadBytes(fileRef, file);
-          return getDownloadURL(fileRef);
+          if (file.type.startsWith("image/")) {
+            const locationRef = ref(
+              storage,
+              `contents/${currentUser.uid}/${docRef.id}/${file.name}`
+            );
+            const result = await uploadBytes(locationRef, file);
+            const url = await getDownloadURL(result.ref);
+            photoUrls.push(url); // 업로드된 이미지 URL 저장
+          }
         })
       );
 
-      await updateDoc(doc(db, "contents", docRef.id), {
-        files: uploadedFiles, // 업로드된 파일의 URL 추가
+      // 오디오 파일 업로드 (선택적)
+      if (audioBlob) {
+        const audioRef = ref(
+          storage,
+          `contents/${currentUser.uid}/${docRef.id}/recording.mp3`
+        );
+        await uploadBytes(audioRef, audioBlob);
+        const audioURL = await getDownloadURL(audioRef);
+        await updateDoc(docRef, { audioURL }); // Firestore에 오디오 URL 추가
+      }
+
+      // Firestore에 이미지 URL 추가
+      await updateDoc(docRef, {
+        photos: photoUrls,
       });
 
       // 상태 초기화
@@ -270,9 +291,10 @@ const PostForm = ({ onCancel, onSubmitSuccess }) => {
       setAudioBlob(null);
 
       if (onSubmitSuccess) onSubmitSuccess();
-      else navigate("/"); // 저장 후 메인 페이지로 이동
+      else navigate("/"); // 게시물 작성 후 메인 페이지로 이동
     } catch (error) {
-      console.error(error);
+      console.error("Error during post submission:", error);
+      alert("게시물을 업로드하는 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -282,18 +304,9 @@ const PostForm = ({ onCancel, onSubmitSuccess }) => {
     navigate("/");
   };
 
-  const removeFile = (index) => {
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-  };
-
   return (
     <AllWrapp>
-      <ModalOverlay
-        onClick={(e) => {
-          e.stopPropagation();
-          handleCancel();
-        }}
-      >
+      <ModalOverlay onClick={handleCancel}>
         <ModalWrapper onClick={(e) => e.stopPropagation()}>
           <TextAreaWrapper>
             <TextArea

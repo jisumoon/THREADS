@@ -6,17 +6,12 @@ import {
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
-import { auth, db, storage } from "../firebase";
+import { auth, db, storage } from "../../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
-import {
-  CameraIcon,
-  PictureIcon,
-  MicIcon,
-  HashtagIcon,
-} from "../Components/Common/Icon";
-import { useAuth } from "../Contexts/AuthContext";
-import Loading from "./Loading";
+import { CameraIcon, PictureIcon, MicIcon, HashtagIcon } from "../Common/Icon";
+import { useAuth } from "../../Contexts/AuthContext";
+import Loading from "../logo/Loading";
 
 // Styled Components
 const Wrapper = styled.div`
@@ -225,23 +220,19 @@ const PostForm = () => {
   };
 
   const handleFileChange = (e) => {
-    const selectedFiles = e.target.files;
-    if (selectedFiles) {
-      const newFiles = Array.from(selectedFiles).filter((file) => {
-        if (file.size > maxFileSize) {
-          alert("The maximum file size is 5MB.");
-          return false;
-        }
-        return true;
-      });
-
-      if (files.length + newFiles.length > maxFilesCount) {
-        alert(`You can upload a maximum of ${maxFilesCount} files.`);
-        return;
-      }
-
-      setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    const selectedFiles = Array.from(e.target.files);
+    if (files.length + selectedFiles.length > maxFilesCount) {
+      alert(`최대 ${maxFilesCount}개의 파일만 업로드할 수 있습니다.`);
+      return;
     }
+    const validFiles = selectedFiles.filter((file) => {
+      if (file.size > maxFileSize) {
+        alert("파일 크기는 5MB를 초과할 수 없습니다.");
+        return false;
+      }
+      return true;
+    });
+    setFiles((prevFiles) => [...prevFiles, ...validFiles]);
   };
 
   const removeFile = (index) => {
