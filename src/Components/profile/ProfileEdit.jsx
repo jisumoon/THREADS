@@ -265,7 +265,6 @@ const ProfileEdit = React.memo(({ open, close, profile, onProfileChange }) => {
         getDoc(profileUserRef),
       ]);
 
-      let isFollowing = false;
       let followerCount = 0;
 
       // 현재 사용자의 팔로잉 상태 확인

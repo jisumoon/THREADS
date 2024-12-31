@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
-import FollowersList from "../Search/FollowerList";
+import FollowersList from "./FollowersList2";
+import { db } from "../../firebase";
+import { getAuth } from "firebase/auth";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -78,9 +80,31 @@ const ContentsBorder = styled.div`
   }
 `;
 
-// const FollowersList =
-
 const FollowModal = ({ open, close }) => {
+  const [followers, setFollowers] = useState([]);
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
+
+  useEffect(() => {
+    const fetchFollowers = async () => {
+      try {
+        const userRef = doc(db, "users", currentUser.uid);
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const followers = userData.followers || [];
+          setFollowers(followers);
+        } else {
+          console.warn("현재 사용자의 Firestore 문서를 찾을 수 없습니다.");
+          setFollowers([]);
+        }
+      } catch (error) {}
+    };
+
+    fetchFollowers();
+  }, [currentUser]);
+
   if (!open) return null;
 
   return (
@@ -89,7 +113,8 @@ const FollowModal = ({ open, close }) => {
         <FollowModalBox onClick={(e) => e.stopPropagation()}>
           <CloseButton onClick={close}>X</CloseButton>
           <ContentsBorder>
-            <FollowersList />
+            {/* FollowersList에 현재 사용자의 followers 데이터 전달 */}
+            <FollowersList followers={followers} />
           </ContentsBorder>
         </FollowModalBox>
       </ModalOverlay>

@@ -22,7 +22,7 @@ const TimeLine = ({ searchTerm, contentType, onDataEmpty, postNum }) => {
         orderBy("createdAt", "desc"),
         limit(25)
       );
-      // 실시간 데이터 구독 설정
+
       unsubscribe = onSnapshot(postsQuery, (snapshot) => {
         const livePosts = snapshot.docs.map((doc) => ({
           id: doc.id,

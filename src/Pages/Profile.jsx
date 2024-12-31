@@ -446,7 +446,6 @@ const Profile = () => {
             isLinkPublic: true,
             isProfilePublic: true,
             img: null,
-            isFollowing: false,
             followNum: 0, // 기본값 0
           }));
         }

@@ -285,7 +285,6 @@ const EtcModal = ({
             />
           </TextAreaWrapper>
           <PlusImage>
-            {/* 기존 사진 표시 */}
             {existingPhotos.map((photo, index) => (
               <div key={index} style={{ position: "relative", margin: "5px" }}>
                 <Img src={photo} alt={`Existing Photo ${index + 1}`} />
@@ -294,7 +293,7 @@ const EtcModal = ({
                 </DeleteButton>
               </div>
             ))}
-            {/* 새로 추가된 파일 표시 */}
+
             {files.map((file, index) => (
               <div key={index} style={{ position: "relative", margin: "5px" }}>
                 {file.type.startsWith("image/") ? (
@@ -316,7 +315,7 @@ const EtcModal = ({
                   id="picture"
                   type="file"
                   accept="video/*, image/*"
-                  multiple // 한 번에 여러 파일을 선택할 수 있게 하는 속성
+                  multiple // 한 번에 여러 파일을 선택
                 />
               </PictureButton>
             </Icons>

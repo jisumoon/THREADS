@@ -235,12 +235,11 @@ const Post = ({
   useEffect(() => {
     const getUserProfileImage = async () => {
       try {
-        const imgUrl = await fetchUserProfileImage(userId); // 프로필 이미지 가져오기
-        setProfileImg(imgUrl || ""); // 이미지가 없으면 빈 값
+        const imgUrl = await fetchUserProfileImage(userId);
+        setProfileImg(imgUrl || "");
       } catch (error) {}
     };
 
-    // userId가 있을 때만 프로필 이미지 가져오기
     if (userId) {
       getUserProfileImage();
     }
@@ -249,14 +248,14 @@ const Post = ({
   // const user = auth.currentUser;
 
   const renderTimeAgo = () => {
-    if (!createdAt || !createdAt.seconds) return "방금 전"; // createdAt가 유효하지 않을 때 처리
+    if (!createdAt || !createdAt.seconds) return "방금 전";
     const date = new Date(createdAt.seconds * 1000);
     return formatDistanceToNow(date, { addSuffix: true, locale: ko });
   };
 
   //PostSetModal
   const openModal = (postId) => {
-    setOpenModalId(postId); // 특정 포스트의 ID로 모달 열기
+    setOpenModalId(postId);
   };
   const closeModal = () => {
     setOpenModalId(null);
@@ -274,7 +273,7 @@ const Post = ({
   // Img Modal
   const handleMediaClick = (mediaUrl, type) => {
     setSelectedMedia(mediaUrl); // 클릭된 미디어 URL 설정
-    setMediaType(type); // 미디어 타입 설정 (image 또는 video)
+    setMediaType(type); // 미디어 타입 설정
     setIsImgModalOpen(true); // 모달 열기
   };
 
@@ -292,7 +291,7 @@ const Post = ({
 
   useEffect(() => {
     if (!id) {
-      return; // id가 유효하지 않으면 바로 return
+      return;
     }
 
     const fetchPostAndCommentsData = async () => {
@@ -329,9 +328,8 @@ const Post = ({
     };
 
     fetchPostAndCommentsData();
-  }, [id, likes, dms, retweets]); // 의존성 배열에 필요한 상태 추가
+  }, [id, likes, dms, retweets]);
 
-  // 모달 외부 클릭 감지 이벤트 등록
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -367,7 +365,6 @@ const Post = ({
 
   const handleSave = (updatedContent) => {
     setEditedPost(updatedContent);
-    // 추가적으로 필요한 업데이트 로직
   };
 
   const handleLike = async () => {
@@ -391,12 +388,12 @@ const Post = ({
     setCommentModalOpen(false);
 
     try {
-      // Firestore에서 댓글 수를 다시 가져오기
+      // Firestore에서 댓글 수를  가져오기
       const commentsRef = collection(db, "contents", postId, "comments");
       const commentsSnapshot = await getDocs(commentsRef);
       // 스냅샷에서 댓글 수 가져와 상태 업데이트
       const newCommentsCount = commentsSnapshot.size;
-      setCommentsCount(newCommentsCount); // 댓글 수 상태 업데이트
+      setCommentsCount(newCommentsCount);
     } catch (error) {}
   };
   const handleCommentSubmitSuccess = async () => {
@@ -457,16 +454,16 @@ const Post = ({
 
     if (isRetweets) {
       setRetweets((prevRet) => prevRet - 1);
-      await updateDoc(postRef, { retweets: retweets - 1 }); // Firebase에 업데이트
+      await updateDoc(postRef, { retweets: retweets - 1 });
     } else {
       setRetweets((prevRet) => prevRet + 1);
-      await updateDoc(postRef, { retweets: retweets + 1 }); // Firebase에 업데이트
+      await updateDoc(postRef, { retweets: retweets + 1 });
     }
 
     setIsRetweets((prevRet) => !prevRet);
   };
   useEffect(() => {
-    // Firestore에서 댓글 수를 가져오는 함수
+    // Firestore에서 댓글 수를 가져오기
     const fetchCommentsCount = async () => {
       try {
         const commentsRef = collection(db, "contents", id, "comments");
@@ -475,7 +472,7 @@ const Post = ({
       } catch (error) {}
     };
 
-    fetchCommentsCount(); // 컴포넌트가 마운트될 때 댓글 수를 가져옴
+    fetchCommentsCount();
   }, [id]);
 
   return (
@@ -527,7 +524,7 @@ const Post = ({
               />
             </div>
           )}
-          {/* EtcModal - 수정 모달 */}
+
           {isEtcModalOpen && (
             <EtcModal
               post={post}
@@ -548,12 +545,11 @@ const Post = ({
               placeholder={post}
             />
           ) : (
-            <Payload onClick={PostCommentClick}>{post ?? comment}</Payload> // 하나의 Payload만 남겨두기
+            <Payload onClick={PostCommentClick}>{post ?? comment}</Payload>
           )}
         </Column>
-        {/* AudioMessage 컴포넌트를 audioURL이 있을 때만 렌더링 */}
+
         <ColumnWrapper>
-          {/* Render multiple photos */}
           {photos && photos.length > 0 && (
             <Column>
               {photos.map((photoUrl, index) => (
@@ -609,12 +605,12 @@ const Post = ({
             comment={comment}
           />
         )}
-        {/* 모달을 렌더링 (이미지 또는 비디오가 선택되었을 때) */}
+
         {isImgModalOpen && selectedMedia && (
           <ImageModal
             mediaUrl={selectedMedia}
-            mediaType={mediaType} // 미디어 타입 전달
-            onClose={handleCloseModal} // 모달 닫기 핸들러 전달
+            mediaType={mediaType}
+            onClose={handleCloseModal}
           />
         )}
       </Wrapper>

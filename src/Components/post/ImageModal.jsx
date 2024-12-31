@@ -1,7 +1,6 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
 
-// 모달 스타일 정의
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -36,7 +35,7 @@ const CloseButton = styled.button`
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  z-index: 1000; /* X 버튼이 가장 위에 표시되도록 z-index 설정 */
+  z-index: 1000;
   span {
     cursor: pointer;
     text-align: center;

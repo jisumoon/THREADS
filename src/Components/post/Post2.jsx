@@ -230,12 +230,11 @@ const Post = ({
   useEffect(() => {
     const getUserProfileImage = async () => {
       try {
-        const imgUrl = await fetchUserProfileImage(userId); // 프로필 이미지 가져오기
-        setProfileImg(imgUrl || ""); // 이미지가 없으면 빈 값
+        const imgUrl = await fetchUserProfileImage(userId);
+        setProfileImg(imgUrl || "");
       } catch (error) {}
     };
 
-    // userId가 있을 때만 프로필 이미지 가져오기
     if (userId) {
       getUserProfileImage();
     }
@@ -244,14 +243,14 @@ const Post = ({
   // const user = auth.currentUser;
 
   const renderTimeAgo = () => {
-    if (!createdAt || !createdAt.seconds) return "방금 전"; // createdAt가 유효하지 않을 때 처리
+    if (!createdAt || !createdAt.seconds) return "방금 전";
     const date = new Date(createdAt.seconds * 1000);
     return formatDistanceToNow(date, { addSuffix: true, locale: ko });
   };
 
   //PostSetModal
   const openModal = (postId) => {
-    setOpenModalId(postId); // 특정 포스트의 ID로 모달 열기
+    setOpenModalId(postId);
   };
   const closeModal = () => {
     setOpenModalId(null);
@@ -268,15 +267,15 @@ const Post = ({
 
   // Img Modal
   const handleMediaClick = (mediaUrl, type) => {
-    setSelectedMedia(mediaUrl); // 클릭된 미디어 URL 설정
-    setMediaType(type); // 미디어 타입 설정 (image 또는 video)
-    setIsImgModalOpen(true); // 모달 열기
+    setSelectedMedia(mediaUrl);
+    setMediaType(type);
+    setIsImgModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setIsImgModalOpen(false); // 모달 닫기
-    setSelectedMedia(null); // 선택된 미디어 초기화
-    setMediaType(null); // 미디어 타입 초기화
+    setIsImgModalOpen(false);
+    setSelectedMedia(null);
+    setMediaType(null);
   };
 
   const handleClickOutside = (e) => {
@@ -287,31 +286,27 @@ const Post = ({
 
   useEffect(() => {
     if (!id) {
-      return; // id가 유효하지 않으면 바로 return
+      return;
     }
 
     const fetchPostAndCommentsData = async () => {
       try {
-        // 1. Firestore에서 포스트 데이터를 가져오기
         const postRef = doc(db, "contents", id);
         const postSnap = await getDoc(postRef);
 
         if (!postSnap.exists()) {
-          // 문서가 없으면 랜덤으로 생성된 값을 저장
           await setDoc(postRef, {
             likes: likes,
             dms: dms,
             retweets: retweets,
           });
         } else {
-          // 문서가 존재할 경우 Firebase에 있는 값을 상태로 설정
           const postData = postSnap.data();
           setLikes(postData.likes || likes);
           setDms(postData.dms || dms);
           setRetweets(postData.retweets || retweets);
         }
 
-        // 2. Firestore에서 댓글 수 가져오기
         const commentsCollectionRef = collection(
           db,
           "contents",
@@ -319,14 +314,13 @@ const Post = ({
           "comments"
         );
         const commentsSnapshot = await getDocs(commentsCollectionRef);
-        setCommentsCount(commentsSnapshot.size); // 댓글 개수를 상태로 설정
+        setCommentsCount(commentsSnapshot.size);
       } catch (error) {}
     };
 
     fetchPostAndCommentsData();
-  }, [id, likes, dms, retweets]); // 의존성 배열에 필요한 상태 추가
+  }, [id, likes, dms, retweets]);
 
-  // 모달 외부 클릭 감지 이벤트 등록
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -362,7 +356,6 @@ const Post = ({
 
   const handleSave = (updatedContent) => {
     setEditedPost(updatedContent);
-    // 추가적으로 필요한 업데이트 로직
   };
 
   const handleLike = async () => {
@@ -380,26 +373,25 @@ const Post = ({
   };
 
   const openCommentModal = () => {
-    setCommentModalOpen(true); // 특정 포스트의 ID로 모달 열기
+    setCommentModalOpen(true);
   };
   const closeCommentModal = async () => {
     setCommentModalOpen(false);
 
     try {
-      // Firestore에서 댓글 수를 다시 가져오기
       const commentsRef = collection(db, "contents", postId, "comments");
       const commentsSnapshot = await getDocs(commentsRef);
-      // 스냅샷에서 댓글 수 가져와 상태 업데이트
+
       const newCommentsCount = commentsSnapshot.size;
-      setCommentsCount(newCommentsCount); // 댓글 수 상태 업데이트
+      setCommentsCount(newCommentsCount);
     } catch (error) {}
   };
   const handleCommentSubmitSuccess = async () => {
     try {
       const commentsRef = collection(db, "contents", id, "comments");
       const commentsSnapshot = await getDocs(commentsRef);
-      setCommentsCount(commentsSnapshot.size); // 새로운 댓글 수를 상태로 업데이트
-      setCommentModalOpen(false); // 댓글 추가 후 모달 닫기
+      setCommentsCount(commentsSnapshot.size);
+      setCommentModalOpen(false);
     } catch (error) {}
   };
   const PostCommentClick = () => {
@@ -420,57 +412,29 @@ const Post = ({
     });
   };
 
-  // DM 상태가 변경될 때 Firebase에 업데이트
-  const handleDmClick = async () => {
-    const postRef = doc(db, "contents", id);
-
-    // 최초 클릭 시 DM 카운트 증가 및 Firebase 업데이트
-    if (!isCopied) {
-      setDms((prevDms) => prevDms + 1);
-      await updateDoc(postRef, { dms: dms + 1 });
-
-      // URL 복사 처리
-      const pageUrl = window.location.href;
-
-      try {
-        // 클립보드에 URL 복사
-        await navigator.clipboard.writeText(pageUrl);
-
-        // 복사 완료 상태와 알림 표시
-        setIsCopied(true);
-        alert("링크가 복사되었습니다.");
-      } catch (err) {}
-    } else {
-      // 이미 복사된 경우 알림 표시
-      alert("이미 링크가 복사되었습니다.");
-    }
-  };
-
-  // Retweets 상태가 변경될 때 Firebase에 업데이트
   const handleRetweetClick = async () => {
     const postRef = doc(db, "contents", id);
 
     if (isRetweets) {
       setRetweets((prevRet) => prevRet - 1);
-      await updateDoc(postRef, { retweets: retweets - 1 }); // Firebase에 업데이트
+      await updateDoc(postRef, { retweets: retweets - 1 });
     } else {
       setRetweets((prevRet) => prevRet + 1);
-      await updateDoc(postRef, { retweets: retweets + 1 }); // Firebase에 업데이트
+      await updateDoc(postRef, { retweets: retweets + 1 });
     }
 
     setIsRetweets((prevRet) => !prevRet);
   };
   useEffect(() => {
-    // Firestore에서 댓글 수를 가져오는 함수
     const fetchCommentsCount = async () => {
       try {
         const commentsRef = collection(db, "contents", id, "comments");
         const commentsSnapshot = await getDocs(commentsRef);
-        setCommentsCount(commentsSnapshot.size); // 댓글 개수를 설정
+        setCommentsCount(commentsSnapshot.size);
       } catch (error) {}
     };
 
-    fetchCommentsCount(); // 컴포넌트가 마운트될 때 댓글 수를 가져옴
+    fetchCommentsCount();
   }, [id]);
 
   return (
@@ -546,7 +510,7 @@ const Post = ({
             <Payload onClick={PostCommentClick}>{post ?? comment}</Payload> // 하나의 Payload만 남겨두기
           )}
         </Column>
-        {/* AudioMessage 컴포넌트를 audioURL이 있을 때만 렌더링 */}
+
         <ColumnWrapper>
           {/* Render multiple photos */}
           {photos && photos.length > 0 && (
@@ -604,12 +568,12 @@ const Post = ({
             comment={comment}
           />
         )}
-        {/* 모달을 렌더링 (이미지 또는 비디오가 선택되었을 때) */}
+
         {isImgModalOpen && selectedMedia && (
           <ImageModal
             mediaUrl={selectedMedia}
-            mediaType={mediaType} // 미디어 타입 전달
-            onClose={handleCloseModal} // 모달 닫기 핸들러 전달
+            mediaType={mediaType}
+            onClose={handleCloseModal}
           />
         )}
       </Wrapper>

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import GlobalStyles from "../../styles/GlobalStyles.styles";
 import styled from "styled-components";
+import ReportModal from "../Login/ReportModal";
 
 const ContentsAll = styled.div`
   @media (max-width: 768px) {
@@ -21,7 +22,7 @@ const Wrapper = styled.div`
   background: ${(props) => props.theme.borderColor};
   box-shadow: ${(props) => props.theme.bordershadow};
   transition: all 0.3s;
-  z-index: 9999;
+  z-index: 99;
   @media (max-width: 768px) {
     position: fixed;
     width: 100%;
@@ -133,25 +134,35 @@ const PostSetModal = ({
   const handleModalClick = (e) => {
     e.stopPropagation(); // 클릭이 배경으로 전파되지 않도록 방지
   };
+  const [showing, setShowing] = useState(false);
+  const toggleShowing = () => {
+    setShowing((prev) => !prev);
+  };
 
   return (
-    <ContentsAll>
-      <Wrapper onClick={onClose}>
-        <Contentswrapper onClick={handleModalClick}>
-          <TopRec></TopRec>
-          <Optionwrapper>
-            {isAuthor && <Li onClick={onDelete}>삭제</Li>}
-            <Li
-              onClick={() => alert("신고하기 기능은 구현되지 않았습니다.ㅎㅎ")}
-            >
-              신고하기
-            </Li>
-            {isAuthor && <Li onClick={onEdit}>수정</Li>}
-          </Optionwrapper>
-          <UpLoadButton onClick={onClose}>닫기</UpLoadButton>
-        </Contentswrapper>
-      </Wrapper>
-    </ContentsAll>
+    <>
+      <ContentsAll>
+        <Wrapper onClick={onClose}>
+          <Contentswrapper onClick={handleModalClick}>
+            <TopRec></TopRec>
+            <Optionwrapper>
+              {isAuthor && <Li onClick={onDelete}>삭제</Li>}
+              {isAuthor && <Li onClick={onEdit}>수정</Li>}
+              <Li onClick={() => toggleShowing()}>신고하기</Li>
+            </Optionwrapper>
+            <UpLoadButton onClick={onClose}>닫기</UpLoadButton>
+          </Contentswrapper>
+        </Wrapper>
+      </ContentsAll>
+      <ReportModal
+        width="100%"
+        height="100vh"
+        background="rgba(255, 255, 255, 0.9)"
+        borderRadius="20px"
+        isVisible={showing}
+        setShowing={setShowing}
+      />
+    </>
   );
 };
 export default PostSetModal;

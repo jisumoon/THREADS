@@ -86,16 +86,7 @@ const UserInfo = styled.p`
     white-space: normal;
   }
 `;
-const UserFollowerNum = styled.p`
-  font-size: 12px;
-  color: ${(props) => props.theme.fontcolor};
-  @media (max-width: 768px) {
-    font-size: 11px;
-  }
-  @media (max-width: 480px) {
-    font-size: 10px;
-  }
-`;
+
 const FollowerButton = styled.button`
   flex: 0 0 auto;
   width: 110px;
@@ -121,17 +112,14 @@ const FollowerButton = styled.button`
   }
 `;
 const FollowerItem = ({ follower, toggleFollow, onProfileClick }) => {
-  const { ProfileImg, userEmail, bio, followNum = 0, isFollowing } = follower;
+  const { img, userEmail, bio, isFollowing } = follower;
 
   return (
     <FollowerContain onClick={onProfileClick}>
       <Wrapper>
         <UserWrapper>
-          {ProfileImg ? (
-            <img
-              src={ProfileImg}
-              alt={`${userEmail || "사용자"}의 프로필 이미지`}
-            />
+          {img ? (
+            <img src={img} alt={`${userEmail || "사용자"}의 프로필 이미지`} />
           ) : (
             <UserIcon2 width={50} height={50} />
           )}
@@ -139,7 +127,6 @@ const FollowerItem = ({ follower, toggleFollow, onProfileClick }) => {
         <UserContex>
           <UserName>{userEmail || "알 수 없는 사용자"}</UserName>
           <UserInfo>{bio || "소개글이 없습니다."}</UserInfo>
-          <UserFollowerNum>{`팔로워 ${followNum}명`}</UserFollowerNum>
         </UserContex>
       </Wrapper>
 

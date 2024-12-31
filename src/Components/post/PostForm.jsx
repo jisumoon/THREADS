@@ -238,7 +238,7 @@ const PostForm = ({ onCancel, onSubmitSuccess }) => {
     try {
       setIsLoading(true);
 
-      // Firestore에 게시물 초기 데이터 저장
+      // Firestore에 게시물 저장
       const docRef = await addDoc(collection(db, "contents"), {
         post: postContent,
         createdAt: serverTimestamp(),
@@ -269,7 +269,7 @@ const PostForm = ({ onCancel, onSubmitSuccess }) => {
         })
       );
 
-      // 오디오 파일 업로드 (선택적)
+      // 오디오 파일 업로드
       if (audioBlob) {
         const audioRef = ref(
           storage,
@@ -285,7 +285,6 @@ const PostForm = ({ onCancel, onSubmitSuccess }) => {
         photos: photoUrls,
       });
 
-      // 상태 초기화
       setPostContent("");
       setFiles([]);
       setAudioBlob(null);

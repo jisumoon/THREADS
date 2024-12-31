@@ -456,7 +456,6 @@ const CoModal = ({
   const [isRecording, setIsRecording] = useState(false); // 녹음 상태
   const mediaRecorderRef = useRef(null); // MediaRecorder 참조
 
-  // Firebase에서 전달된 값을 상태로 설정
   useEffect(() => {
     if (passedLikes) setLikes(passedLikes);
     if (passedDms) setDms(passedDms);
@@ -468,20 +467,19 @@ const CoModal = ({
       try {
         const imgUrl = await fetchUserProfileImage(userId); // 프로필 이미지 가져오기
 
-        setProfileImg(imgUrl || ""); // 이미지가 없으면 빈 값
+        setProfileImg(imgUrl || "");
       } catch (error) {}
     };
 
-    // userId가 있을 때만 프로필 이미지 가져오기
     if (userId) {
       getUserProfileImage();
     }
   }, [userId]);
 
-  // Firestore에서 댓글 데이터를 가져오는 useEffect
+  // Firestore에서 댓글 데이터
   useEffect(() => {
     const fetchComments = async () => {
-      if (!postId) return; // postId가 없을 경우 함수 종료
+      if (!postId) return;
 
       try {
         const commentsCollectionRef = collection(
@@ -574,8 +572,8 @@ const CoModal = ({
       }
 
       await addDoc(commentsRef, commentData);
-      setPost(""); // 상태 초기화
-      setFiles([]); // 업로드 파일 초기화
+      setPost("");
+      setFiles([]);
       onSubmitSuccess();
       // 댓글을 추가한 후 즉시 업데이트
       setComments((prevComments) => [...prevComments, commentData]);
@@ -587,7 +585,7 @@ const CoModal = ({
     }
   };
 
-  const [charCount, setCharCount] = useState(post.length || 0); // 글자 수 상태 관리
+  const [charCount, setCharCount] = useState(post.length || 0); // 글자 수
   const handleContentChange = (e) => {
     const content = e.target.value;
     setNewContent(content);
