@@ -62,9 +62,8 @@ const NotificationList = ({ onUpdate }) => {
 
           return {
             id: docSnapshot.id,
-
             username: docData.userEmail || "siro@ezen.com",
-
+            img: docData.img,
             isRead: false,
             message,
             type,

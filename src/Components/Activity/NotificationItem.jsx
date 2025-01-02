@@ -126,7 +126,7 @@ const User = styled.div`
 `;
 
 const NotificationItem = ({
-  profileImg,
+  img,
   username,
   createdAt,
   onClick,
@@ -187,10 +187,10 @@ const NotificationItem = ({
     >
       <Wrapper onClick={handleClick} isRead={isRead}>
         <UserWrapper>
-          {profileImg ? (
-            <img src={profileImg} alt="User profile" />
+          {img ? (
+            <img src={img} alt={`${username || "사용자"}의 프로필 이미지`} />
           ) : (
-            <UserIcon2 width={50} />
+            <UserIcon2 width={50} height={50} />
           )}
         </UserWrapper>
         <UserContex>
