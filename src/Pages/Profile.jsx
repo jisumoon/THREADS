@@ -26,6 +26,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import OtherBtnModal from "../Components/profile/OtherBtnModal";
 import { useAuth } from "../Contexts/AuthContext";
 import { el } from "date-fns/locale";
+import {
+  getCurrentFollowers,
+  getCurrentFollowing,
+  toggleFollow,
+} from "../Utils/followersUtils";
+import { ProfileUpdate } from "../Utils/ProfileUpdateUtils";
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -148,14 +154,26 @@ const BottomWrap = styled.div`
   flex-direction: column;
   gap: 25px;
   button {
+    width: 100%;
+    height: 39px;
+    transition: all 0.3s;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    border-radius: 10px;
-    color: ${(props) => props.theme.headerBg};
-    background-color: ${(props) => props.theme.selectedbtn};
-    border: 2px solid ${(props) => props.theme.borderstroke};
+    &.profileEdit {
+      padding: 20px;
+      border-radius: 10px;
+      color: ${(props) => props.theme.headerBg};
+      background-color: ${(props) => props.theme.selectedbtn};
+      border: 2px solid ${(props) => props.theme.borderstroke};
+      &:hover {
+        background: #00000060;
+        color: #fff;
+      }
+    }
+    &.follow {
+    }
+
     @media screen and (max-width: 480px) {
       width: 100%;
       margin-top: 10px;
@@ -164,6 +182,20 @@ const BottomWrap = styled.div`
 
   @media screen and (max-width: 768px) {
     gap: 8px;
+  }
+`;
+
+const Followbutton = styled.button`
+  background: ${(props) => (Boolean(props.follower) ? "#000" : "#fff")};
+  color: ${(props) => (props.follower ? "#fff" : "#000")};
+  border: 1px solid ${(props) => (props.follower ? "#fff" : "#bababa")};
+  font-size: 15px;
+  font-weight: Medium;
+  border-radius: 6px;
+  transition: all 0.3s;
+  &:hover {
+    background: #00000060;
+    color: #fff;
   }
 `;
 
@@ -303,15 +335,15 @@ const Profile = () => {
   const user = auth.currentUser; //유저정보
 
   const [avatar, setAvarta] = useState(null || undefined); //이미지관리목적
+  const [targetId, setTargetId] = useState("");
   const [posts, setPosts] = useState([]); //데이터베이스에 객체형태로 정의된 데이터들
-  const [editbtn, setEditbtn] = useState(true);
+  const [followerList, setFollowerList] = useState([]);
+  const [follower, setFollower] = useState(false);
   const [searchParams] = useSearchParams();
   const emailAdress = searchParams.get("email");
   const [followModal, setFollowModal] = useState(false);
-  const [linkmodal, setLinkModal] = useState(false);
   const [editmodal, setEditModal] = useState(false);
   const [otherBtn, setOtherBtn] = useState(false);
-  const [followNum, setFollowNum] = useState(Math.floor(Math.random() * 10));
   const [profile, setProfile] = useState({
     postId: "",
     username: "",
@@ -322,9 +354,8 @@ const Profile = () => {
     isProfilePublic: true,
     img: `${avatar ?? ""}`,
     isFollowing: true,
+    followNum: 0,
   });
-
-  const [savedData, setSavedData] = useState([]); // 모든 데이터를 저장
   const [filteredData, setFilteredData] = useState([]); // 필터링된 데이터를 저장
   const [contentType, setContentType] = useState("thresds"); // 선택된 필터 상태
   // NotificationList에서 데이터를 받아옴
@@ -383,14 +414,49 @@ const Profile = () => {
         setPosts(posts);
       });
     };
-    fetchPosts();
 
+    const targetFn = async () => {
+      const targetQuery = query(
+        collection(db, "users"),
+        where("email", "==", emailAdress)
+      );
+      const querySnapshot = await getDocs(targetQuery);
+
+      if (querySnapshot.empty) {
+        console.log("일치하는 사용자가 없습니다.");
+      } else {
+        const userId = querySnapshot.docs[0].data().userId;
+        setTargetId(userId);
+
+        const followers = await getCurrentFollowers(db, userId);
+        setFollowerList(followers);
+      }
+    };
+    targetFn();
+    fetchPosts();
     return () => {
       unsubscribe && unsubscribe();
     };
   }, [, emailAdress]);
 
-  //이메일로 비교해서 db에 저장된 profile 데이터 비교 후 가져와 setProfile에 넣기기
+  useEffect(() => {
+    const fetchFollowers = async () => {
+      if (targetId) {
+        const followers = await getCurrentFollowers(db, targetId);
+        setFollowerList(followers);
+      }
+    };
+
+    fetchFollowers();
+  }, [targetId]);
+
+  useEffect(() => {
+    if (user) {
+      const check = followerList.includes(user.uid);
+      setFollower(check);
+    }
+  }, [followerList, user?.uid]);
+
   const CheckProfile = async () => {
     try {
       if (!auth.currentUser || !emailAdress) return;
@@ -502,6 +568,28 @@ const Profile = () => {
     } catch (error) {}
   };
 
+  const followListFn = async () => {
+    const updatedFollowers = await getCurrentFollowers(db, targetId);
+
+    setFollowerList(updatedFollowers);
+  };
+
+  const onFollowFetch = async () => {
+    if (!user) return;
+    try {
+      const isFollow = await toggleFollow(db, currentUser.uid, targetId);
+      const updateNum = isFollow
+        ? profile.followNum + 1
+        : profile.followNum - 1;
+      const UpdateProfile = { ...profile, followNum: updateNum };
+      await ProfileUpdate(emailAdress, UpdateProfile);
+      setProfile(UpdateProfile);
+      await followListFn();
+    } catch (err) {
+      console.error("팔로우 오류", err);
+    }
+  };
+
   //// 모달 모음 ////
   //팔로우 클릭
   const onfollow = () => {
@@ -514,9 +602,6 @@ const Profile = () => {
   };
 
   //프로필수정모달
-  const onOtherbtn = () => {
-    setOtherBtn((prev) => !prev);
-  };
 
   const handleProfileChange = (updatedProfile) => {
     setProfile(updatedProfile);
@@ -585,21 +670,6 @@ const Profile = () => {
           onProfileChange={() => handleProfileChange}
         />
       )}
-      {otherBtn ? (
-        <OtherBtnModal
-          open={true}
-          close={onOtherbtn}
-          profile={profile}
-          onProfileChange={() => handleProfileChange}
-        />
-      ) : (
-        <OtherBtnModal
-          open={false}
-          close={onOtherbtn}
-          profile={profile}
-          onProfileChange={() => handleProfileChange}
-        />
-      )}
       <Wrapper>
         <BoederWrapper>
           <PostlistWrapper>
@@ -640,14 +710,21 @@ const Profile = () => {
                   ) : null}
                 </FollowLink>
                 {user?.email === emailAdress ? (
-                  <Button
-                    type="edit"
-                    text="프로필 수정"
+                  <button
                     onClick={onProfileEdite}
                     height={"40px"}
-                  />
+                    className="profileEdit"
+                  >
+                    프로필 수정
+                  </button>
                 ) : (
-                  <Button type="edit" text="팔로잉" onClick={onOtherbtn} />
+                  <Followbutton
+                    onClick={() => onFollowFetch()}
+                    follower={follower}
+                    className="follow"
+                  >
+                    {follower ? "팔로잉" : "팔로우"}
+                  </Followbutton>
                 )}
               </BottomWrap>
             </ProfileInnner>

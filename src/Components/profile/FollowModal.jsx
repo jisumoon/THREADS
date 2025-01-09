@@ -3,6 +3,7 @@ import styled from "styled-components";
 import FollowersList from "./FollowersList2";
 import { db } from "../../firebase";
 import { getAuth } from "firebase/auth";
+import { useParams, useSearchParams } from "react-router-dom";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -84,6 +85,8 @@ const FollowModal = ({ open, close }) => {
   const [followers, setFollowers] = useState([]);
   const auth = getAuth();
   const currentUser = auth.currentUser;
+  const [searchParams] = useSearchParams();
+  const emailAdress = searchParams.get("email");
 
   useEffect(() => {
     const fetchFollowers = async () => {

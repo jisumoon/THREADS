@@ -4,6 +4,7 @@ import {
   updateDoc,
   arrayUnion,
   arrayRemove,
+  getDocs,
 } from "firebase/firestore";
 
 // 현재 사용자의 following 배열 가져오기
@@ -14,6 +15,22 @@ export const getCurrentFollowing = async (db, userId) => {
   return currentUserDoc.exists() && currentUserDoc.data().following
     ? currentUserDoc.data().following
     : [];
+};
+
+export const getCurrentFollowers = async (db, userId) => {
+  if (!userId) return console.log("userId가 없습니다.");
+
+  const currentUserRef = doc(db, "users", userId);
+
+  const currentUserDoc = await getDoc(currentUserRef);
+
+  if (currentUserDoc.exists()) {
+    const followers = currentUserDoc.data().followers || [];
+    return followers;
+  } else {
+    console.log("해당 사용자 데이터가 없습니다.");
+    return [];
+  }
 };
 
 // 팔로우 상태 변경

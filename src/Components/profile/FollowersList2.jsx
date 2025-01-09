@@ -12,6 +12,20 @@ import { db } from "../../firebase";
 import { getAuth } from "firebase/auth";
 import FollowerItem from "../Search/FollowerItem";
 import { toggleFollow } from "../../Utils/followersUtils";
+import styled from "styled-components";
+
+const Wraper = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 50px;
+  h3 {
+    font-size: 1.2rem;
+    color: ${(props) => props.theme.followerfont};
+  }
+`;
 
 const FollowersList = ({ onDataEmpty }) => {
   const [followers, setFollowers] = useState([]);
@@ -22,20 +36,33 @@ const FollowersList = ({ onDataEmpty }) => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    //email로 userid 찾아오는 함수수
     const fetchUserIdByEmail = async (email) => {
       try {
-        const profileQuery = query(
-          collection(db, "profile"),
-          where("userEmail", "==", email)
-        );
-        const querySnapshot = await getDocs(profileQuery);
+        // const profileQuery = query(
+        //   collection(db, "profile"),
+        //   where("userEmail", "==", email)
+        // );
+        // const querySnapshot = await getDocs(profileQuery);
 
-        if (querySnapshot.empty) {
+        // if (querySnapshot.empty) {
+        //   return null;
+        // }
+
+        // const userProfile = querySnapshot.docs[0].data();
+        // return userProfile.userId;
+
+        const userEamilQuery = query(
+          collection(db, "users"),
+          where("email", "==", email)
+        );
+        const querysnapshot = await getDocs(userEamilQuery);
+        if (querysnapshot.empty) {
           return null;
         }
 
-        const userProfile = querySnapshot.docs[0].data();
-        return userProfile.userId;
+        const userEmaildoc = querysnapshot.docs[0].data();
+        return userEmaildoc.userId;
       } catch (error) {
         return null;
       }
@@ -81,7 +108,7 @@ const FollowersList = ({ onDataEmpty }) => {
     const email = searchParams.get("email");
     if (email) {
       (async () => {
-        const fetchedUserId = await fetchUserIdByEmail(email);
+        const fetchedUserId = await fetchUserIdByEmail(email); //userId받음음
         if (fetchedUserId) {
           setUserId(fetchedUserId);
           await fetchFollowers(fetchedUserId);
@@ -117,14 +144,20 @@ const FollowersList = ({ onDataEmpty }) => {
 
   return (
     <div>
-      {followers.map((follower) => (
-        <FollowerItem
-          key={follower.id}
-          follower={follower}
-          toggleFollow={() => handleToggleFollow(follower.userId)}
-          onProfileClick={() => handleProfileClick(follower.userEmail)}
-        />
-      ))}
+      {followers.length === 0 ? (
+        <Wraper>
+          <h3> 팔로워가 없습니다.</h3>
+        </Wraper>
+      ) : (
+        followers.map((follower) => (
+          <FollowerItem
+            key={follower.id}
+            follower={follower}
+            toggleFollow={() => handleToggleFollow(follower.userId)}
+            onProfileClick={() => handleProfileClick(follower.userEmail)}
+          />
+        ))
+      )}
     </div>
   );
 };
